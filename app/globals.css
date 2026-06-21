@@ -1,26 +1,174 @@
 @import "tailwindcss";
 
-:root {
+@custom-variant dark (&:is(.dark *));
+
+html,
+html[data-theme="light"] {
+  color-scheme: light;
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --muted-foreground: #475569;
+  --border: #e2e8f0;
+  --card: #ffffff;
+  --ruby: #e11d48;
+  --ruby-glow: rgba(225, 29, 72, 0.35);
+  --ruby-muted: rgba(225, 29, 72, 0.1);
+  --surface: #f1f5f9;
+  --surface-elevated: #ffffff;
+  --panel: #ffffff;
+  --panel-muted: #f8fafc;
+  --hover: rgba(15, 23, 42, 0.05);
+  --input: #ffffff;
+  --footer: #f8fafc;
+  --divider: #e2e8f0;
+  --grid-line: rgba(15, 23, 42, 0.07);
+  --glass-bg: rgba(255, 255, 255, 0.82);
+  --glass-strong-bg: rgba(255, 255, 255, 0.94);
+  --glass-border: rgba(15, 23, 42, 0.1);
+  --gradient-from: #0f172a;
+  --gradient-via: #e11d48;
+  --gradient-to: #0f172a;
+  --dot-inactive: rgba(15, 23, 42, 0.2);
+  --code-keyword: #7c3aed;
+  --code-line: #94a3b8;
+  --code-text: #334155;
+  --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(15, 23, 42, 0.04);
+}
+
+html.dark,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --muted: #71717a;
+  --muted-foreground: #a1a1aa;
+  --border: rgba(255, 255, 255, 0.1);
+  --card: rgba(24, 24, 27, 0.72);
+  --ruby-glow: rgba(225, 29, 72, 0.4);
+  --ruby-muted: rgba(225, 29, 72, 0.12);
+  --surface: #18181b;
+  --surface-elevated: #27272a;
+  --panel: #0c0c0e;
+  --panel-muted: rgba(24, 24, 27, 0.72);
+  --hover: rgba(255, 255, 255, 0.06);
+  --input: rgba(12, 12, 14, 0.9);
+  --footer: #0c0c0e;
+  --divider: rgba(255, 255, 255, 0.08);
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --glass-bg: rgba(24, 24, 27, 0.72);
+  --glass-strong-bg: rgba(24, 24, 27, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --gradient-from: #fafafa;
+  --gradient-via: #e11d48;
+  --gradient-to: #fafafa;
+  --dot-inactive: rgba(255, 255, 255, 0.25);
+  --code-keyword: #a78bfa;
+  --code-line: #52525b;
+  --code-text: #d4d4d8;
+  --card-shadow: none;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-ruby: var(--ruby);
+  --color-ruby-glow: var(--ruby-glow);
+  --color-ruby-muted: var(--ruby-muted);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-panel: var(--panel);
+  --color-panel-muted: var(--panel-muted);
+  --color-hover: var(--hover);
+  --color-input: var(--input);
+  --color-footer: var(--footer);
+  --color-divider: var(--divider);
+  --color-code-keyword: var(--code-keyword);
+  --color-code-line: var(--code-line);
+  --color-code-text: var(--code-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}
+
+section[id] {
+  scroll-margin-top: 7rem;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+@utility glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--card-shadow);
+}
+
+@utility glass-strong {
+  background: var(--glass-strong-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--card-shadow);
+}
+
+@utility themed-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+}
+
+@utility text-gradient-ruby {
+  background: linear-gradient(
+    135deg,
+    var(--gradient-from) 0%,
+    var(--gradient-via) 50%,
+    var(--gradient-to) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility grid-bg {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility ruby-glow {
+  box-shadow:
+    0 0 20px rgba(225, 29, 72, 0.15),
+    0 0 60px rgba(225, 29, 72, 0.05);
+}
+
+@keyframes pulse-ruby {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-ruby {
+  animation: pulse-ruby 3s ease-in-out infinite;
 }
