@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TechRuby
 
-## Getting Started
+Marketing site for [TechRuby](https://techruby.ir) — premium software engineering services.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router), React 19, TypeScript
+- Tailwind CSS v4
+- Framer Motion, next-themes
+- Bilingual UI: English + Persian (`locales/en.json`, `locales/fa.json`)
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build   # production build
+npm run lint    # ESLint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deployment
 
-## Learn More
+Production runs on the **survey-salamruby** server as a Docker container behind Traefik.
 
-To learn more about Next.js, take a look at the following resources:
+**Full guide:** [docs/DEPLOY.md](docs/DEPLOY.md)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Quick deploy after pushing to `main`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+ssh survey-salamruby 'cd ~/rubytech && git pull origin main && sudo docker compose build && sudo docker compose up -d --force-recreate'
+```
 
-## Deploy on Vercel
+The Docker image is built on the server via a multi-stage `Dockerfile` (no Node.js required on the host).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project layout
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/              # Next.js app router pages and global styles
+components/       # UI sections and primitives
+hooks/            # Client hooks (i18n, spotlight)
+lib/              # Utilities and motion config
+locales/          # en.json, fa.json translation files
+public/fonts/     # IRANSansX font files (Persian)
+docs/DEPLOY.md    # Production deployment reference
+```
+
+## Brand
+
+- Product name: **TechRuby** (English), **تک‌روبی** (Persian)
+- Domain: **techruby.ir**
+- Storage keys: `techruby-theme`, `techruby-locale`
