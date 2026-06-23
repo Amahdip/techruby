@@ -4,11 +4,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2, Terminal } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useTranslation } from "@/hooks/use-translation";
 import { springSoft } from "@/lib/motion";
+import {
+  TERMINAL_NODE_LABELS,
+  TERMINAL_SCENARIOS,
+  type NodeId,
+  type TerminalScenario,
+} from "@/lib/terminal-scenarios";
 import { cn } from "@/lib/utils";
 
-type NodeId = "gateway" | "eventBus" | "k8s";
 type NodeStatus = "idle" | "running" | "done";
 type LineVariant = "command" | "muted" | "success";
 
@@ -17,27 +21,6 @@ type TerminalLine = {
   text: string;
   variant: LineVariant;
   typing?: boolean;
-};
-
-type ScenarioStep =
-  | { action: "command"; text: string }
-  | {
-      action: "line";
-      text: string;
-      variant: "muted" | "success";
-      delay?: number;
-    }
-  | { action: "progress"; label: string; node: NodeId }
-  | {
-      action: "node";
-      id: NodeId;
-      status: NodeStatus;
-      delay?: number;
-    };
-
-type TerminalScenario = {
-  filename: string;
-  steps: ScenarioStep[];
 };
 
 const NODE_IDS: NodeId[] = ["gateway", "eventBus", "k8s"];
@@ -49,7 +32,7 @@ function sleep(ms: number) {
 function BlinkingCursor() {
   return (
     <span
-      className="ms-0.5 inline-block h-4 w-2 animate-pulse bg-ruby align-middle"
+      className="ml-0.5 inline-block h-4 w-2 animate-pulse bg-ruby align-middle"
       aria-hidden
     />
   );
@@ -113,7 +96,6 @@ function InfrastructureNode({
 }
 
 export function HeroTerminal() {
-  const { t } = useTranslation();
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [filename, setFilename] = useState("techruby-deploy.log");
   const [nodeStatus, setNodeStatus] = useState<Record<NodeId, NodeStatus>>({
@@ -126,14 +108,6 @@ export function HeroTerminal() {
   );
   const runIdRef = useRef(0);
   const scenarioIndexRef = useRef(0);
-
-  const scenarios = t("hero.terminal.scenarios") as TerminalScenario[];
-
-  const nodeLabels: Record<NodeId, string> = {
-    gateway: t("hero.terminal.nodes.gateway"),
-    eventBus: t("hero.terminal.nodes.eventBus"),
-    k8s: t("hero.terminal.nodes.k8s"),
-  };
 
   const setNode = useCallback((id: NodeId, status: NodeStatus) => {
     setNodeStatus((prev) => ({ ...prev, [id]: status }));
@@ -205,7 +179,7 @@ export function HeroTerminal() {
 
         switch (step.action) {
           case "command":
-            await typeCommand(step.text, runId);
+            await typeCommand(step.text.replace(/^\$\s*/, ""), runId);
             break;
           case "line":
             appendLine(step.text, step.variant);
@@ -231,10 +205,9 @@ export function HeroTerminal() {
     const isActive = () => !cancelled && runIdRef.current === runId;
 
     async function runLoop() {
-      if (!Array.isArray(scenarios) || scenarios.length === 0) return;
-
       while (isActive()) {
-        const scenario = scenarios[scenarioIndexRef.current % scenarios.length];
+        const scenario =
+          TERMINAL_SCENARIOS[scenarioIndexRef.current % TERMINAL_SCENARIOS.length];
         scenarioIndexRef.current += 1;
 
         setLines([]);
@@ -254,10 +227,12 @@ export function HeroTerminal() {
     return () => {
       cancelled = true;
     };
-  }, [resetNodes, runScenario, scenarios]);
+  }, [resetNodes, runScenario]);
 
   return (
     <motion.div
+      dir="ltr"
+      lang="en"
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ ...springSoft, delay: 0.3 }}
@@ -265,25 +240,28 @@ export function HeroTerminal() {
     >
       <div className="absolute inset-0 grid-bg opacity-40" />
       <div className="relative rounded-xl bg-panel p-5">
-        <div className="mb-4 flex items-center gap-2 border-b border-divider pb-3">
-          <Terminal className="size-4 text-ruby" />
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={filename}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2 }}
-              className="font-mono text-xs text-muted-foreground"
-            >
-              {filename}
-            </motion.span>
-          </AnimatePresence>
-          <span className="ms-auto flex items-center gap-2">
+        <div className="mb-4 flex items-center justify-between gap-2 border-b border-divider pb-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Terminal className="size-4 shrink-0 text-ruby" />
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={filename}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2 }}
+                className="truncate font-mono text-xs text-muted-foreground"
+              >
+                {filename}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
             <span className="hidden items-center gap-1.5 sm:flex">
               <span className="size-1.5 animate-pulse rounded-full bg-emerald-500" />
               <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                {t("hero.terminal.live")}
+                live
               </span>
             </span>
             <span className="flex gap-1.5">
@@ -291,13 +269,13 @@ export function HeroTerminal() {
               <span className="size-2.5 rounded-full bg-yellow-500/80" />
               <span className="size-2.5 rounded-full bg-green-500/80" />
             </span>
-          </span>
+          </div>
         </div>
 
         <div
-          className="min-h-[168px] space-y-1.5 font-mono text-[13px] leading-relaxed"
+          className="min-h-[168px] space-y-1.5 text-left font-mono text-[13px] leading-relaxed"
           aria-live="polite"
-          aria-label={t("hero.terminal.aria_label")}
+          aria-label="Deployment terminal output"
         >
           {lines.map((line) => (
             <motion.div
@@ -306,15 +284,19 @@ export function HeroTerminal() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
               className={cn(
-                "flex items-start gap-2",
+                "flex items-start gap-2 text-left",
                 line.variant === "command" && "text-foreground",
                 line.variant === "muted" && "text-muted-foreground",
                 line.variant === "success" && "text-emerald-500",
               )}
             >
-              <span className="select-none text-code-line opacity-40">›</span>
-              <span className="min-w-0 flex-1 break-all">
-                {line.text}
+              <span className="w-3 shrink-0 select-none text-code-line opacity-40">
+                {line.variant === "command" ? "$" : "›"}
+              </span>
+              <span className="min-w-0 flex-1 break-all text-left">
+                {line.variant === "command"
+                  ? line.text.replace(/^\$\s*/, "")
+                  : line.text}
                 {line.typing && <BlinkingCursor />}
               </span>
             </motion.div>
@@ -324,7 +306,7 @@ export function HeroTerminal() {
             <motion.div
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="pt-1 ps-5"
+              className="pt-1 pl-5 text-left"
             >
               <ProgressBar label={progress.label} progress={progress.value} />
             </motion.div>
@@ -335,7 +317,7 @@ export function HeroTerminal() {
           {NODE_IDS.map((id) => (
             <InfrastructureNode
               key={id}
-              label={nodeLabels[id]}
+              label={TERMINAL_NODE_LABELS[id]}
               status={nodeStatus[id]}
             />
           ))}

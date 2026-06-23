@@ -16,6 +16,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - Minimize scope; match existing patterns in surrounding files.
 - User-facing strings go in `locales/en.json` and `locales/fa.json` — use `useTranslation()` / `t("key")`.
+- **Exception:** the hero terminal (`lib/terminal-scenarios.ts`) is always English and LTR — never translate or RTL-flip terminal commands/output.
 - Use design tokens from `app/globals.css` (`bg-ruby`, `text-muted-foreground`, etc.) — not arbitrary colors.
 - Kebab-case for folders and CSS class names.
 - Optional chaining for objects: `data?.id`.
