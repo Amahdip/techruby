@@ -46,9 +46,10 @@ Rules for agents:
 1. **Commit and push to `main`** before deploying (unless the user says otherwise).
 2. SSH alias is **`survey-salamruby`** — not `salamruby-survey`.
 3. The server has **Docker only** — no Node.js. Do not rsync local `.next` artifacts.
-4. The **multi-stage Dockerfile** builds inside Docker; `next.config.ts` must keep `output: "standalone"`.
+4. The **multi-stage Dockerfile** builds inside Docker (`npm ci` + `next build`); `next.config.ts` must keep `output: "standalone"`.
 5. Use **`sudo docker compose`** on the server.
-6. After deploy, verify `curl -sI https://techruby.ir` returns HTTP 200.
+6. If `git pull` fails on the server (GitHub blocked), use **rsync + docker compose build** — see [docs/DEPLOY.md](docs/DEPLOY.md) Option B.
+7. After deploy, verify `curl -sI https://techruby.ir` returns HTTP 200.
 
 ## Docker files
 

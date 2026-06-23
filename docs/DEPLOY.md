@@ -56,6 +56,8 @@ curl -sI https://techruby.ir | head -5
 
 ## Standard deploy (after code is pushed to `main`)
 
+### Option A — git pull on server (preferred)
+
 From your **local machine**:
 
 ```bash
@@ -63,15 +65,28 @@ git push origin main
 ssh survey-salamruby 'cd ~/rubytech && git pull origin main && sudo docker compose build && sudo docker compose up -d --force-recreate'
 ```
 
-Or SSH in and run step by step:
+Or use the helper script:
 
 ```bash
-ssh survey-salamruby
-cd ~/rubytech
-git pull origin main
-sudo docker compose build
-sudo docker compose up -d --force-recreate
+./scripts/deploy.sh
 ```
+
+### Option B — rsync fallback (when the server cannot reach GitHub)
+
+Some hosts block or throttle `github.com`. If `git pull` fails on the server, sync from your machine and build there:
+
+```bash
+git push origin main   # still push for version control
+rsync -avz --delete \
+  --exclude node_modules \
+  --exclude .git \
+  --exclude .next \
+  ./ survey-salamruby:~/rubytech/
+
+ssh survey-salamruby 'cd ~/rubytech && sudo docker compose build --no-cache && sudo docker compose up -d --force-recreate'
+```
+
+The multi-stage Dockerfile runs `npm ci` and `next build` **inside Docker**, so the server does not need Node.js — but it **does** need outbound access to `registry.npmjs.org` and `docker.io` during the image build.
 
 ## Local development
 
