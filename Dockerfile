@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 # devDependencies (tailwind, typescript) are required for next build
 ENV NODE_ENV=development
+RUN npm install -g npm@10.9.2
 RUN npm install --include=dev --no-audit --no-fund
 
 FROM base AS builder
