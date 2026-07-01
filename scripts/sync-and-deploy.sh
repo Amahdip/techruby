@@ -15,6 +15,7 @@ rsync -avz --delete \
   --exclude node_modules \
   --exclude .git \
   --exclude .next \
+  --exclude .env \
   "${ROOT_DIR}/" "${SSH_HOST}:${REMOTE_DIR}/"
 
 log "Building and restarting on ${SSH_HOST}..."

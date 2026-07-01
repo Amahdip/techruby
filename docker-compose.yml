@@ -4,8 +4,16 @@ services:
     image: techruby-web:latest
     container_name: techruby-web
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      CONTACT_TO_EMAIL: ${CONTACT_TO_EMAIL}
+      CONTACT_PROVIDER: ${CONTACT_PROVIDER:-resend}
+      RESEND_PROXY_URL: ${RESEND_PROXY_URL:-}
+      CONTACT_FROM_EMAIL: ${CONTACT_FROM_EMAIL:-TechRuby <contact@techruby.ir>}
     networks:
-      - salamruby_default
+      - rubytech_default
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.techruby.rule=Host(`techruby.ir`)"
@@ -15,5 +23,5 @@ services:
       - "traefik.http.services.techruby.loadbalancer.server.port=3000"
 
 networks:
-  salamruby_default:
+  rubytech_default:
     external: true

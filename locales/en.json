@@ -294,6 +294,8 @@
       "project_label": "Project overview",
       "project_placeholder": "Describe your technical challenges, timeline, and goals...",
       "submit_btn": "Submit Discovery Request",
+      "submitting_btn": "Sending…",
+      "error_message": "Something went wrong. Please try again or email us directly.",
       "success_title": "Request received",
       "success_desc": "Our team will reach out to {email} shortly."
     }

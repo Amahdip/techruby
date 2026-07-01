@@ -2,21 +2,44 @@
 
 import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Mail, Send } from "lucide-react";
+import { CheckCircle2, Loader2, Mail, Send } from "lucide-react";
 
 import { useTranslation } from "@/hooks/use-translation";
+import { submitContactForm } from "@/lib/submit-contact";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+type SubmitState = "idle" | "submitting" | "success" | "error";
+
 export function ContactCta() {
   const { t } = useTranslation();
-  const [submitted, setSubmitted] = useState(false);
+  const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
+    setSubmitState("submitting");
+
+    const formData = new FormData(event.currentTarget);
+    const website = formData.get("website");
+
+    try {
+      const sent = await submitContactForm(
+        { email, company, message },
+        typeof website === "string" ? website : "",
+      );
+
+      if (!sent) {
+        setSubmitState("error");
+        return;
+      }
+
+      setSubmitState("success");
+    } catch {
+      setSubmitState("error");
+    }
   };
 
   const highlights = t("contact.highlights") as string[];
@@ -65,7 +88,7 @@ export function ContactCta() {
             </div>
 
             <div className="p-8 sm:p-10">
-              {submitted ? (
+              {submitState === "success" ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -83,6 +106,20 @@ export function ContactCta() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  <div
+                    className="absolute left-[-9999px] h-px w-px overflow-hidden"
+                    aria-hidden="true"
+                  >
+                    <label htmlFor="website">Website</label>
+                    <input
+                      id="website"
+                      name="website"
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
+                  </div>
+
                   <div>
                     <label
                       htmlFor="email"
@@ -99,10 +136,12 @@ export function ContactCta() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder={t("contact.form.email_placeholder")}
+                        disabled={submitState === "submitting"}
                         className={cn(
                           "w-full rounded-lg border border-border bg-input py-2.5 pr-4 pl-10 rtl:pr-10 rtl:pl-4 text-sm",
                           "placeholder:text-muted-foreground/60",
                           "focus:border-ruby/40 focus:outline-none focus:ring-2 focus:ring-ruby/20",
+                          "disabled:cursor-not-allowed disabled:opacity-60",
                         )}
                       />
                     </div>
@@ -122,10 +161,12 @@ export function ContactCta() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       placeholder={t("contact.form.company_placeholder")}
+                      disabled={submitState === "submitting"}
                       className={cn(
                         "w-full rounded-lg border border-border bg-input px-4 py-2.5 text-sm",
                         "placeholder:text-muted-foreground/60",
                         "focus:border-ruby/40 focus:outline-none focus:ring-2 focus:ring-ruby/20",
+                        "disabled:cursor-not-allowed disabled:opacity-60",
                       )}
                     />
                   </div>
@@ -140,18 +181,46 @@ export function ContactCta() {
                     <textarea
                       id="message"
                       rows={4}
+                      required
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
                       placeholder={t("contact.form.project_placeholder")}
+                      disabled={submitState === "submitting"}
                       className={cn(
                         "w-full resize-none rounded-lg border border-border bg-input px-4 py-2.5 text-sm",
                         "placeholder:text-muted-foreground/60",
                         "focus:border-ruby/40 focus:outline-none focus:ring-2 focus:ring-ruby/20",
+                        "disabled:cursor-not-allowed disabled:opacity-60",
                       )}
                     />
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full">
-                    {t("contact.form.submit_btn")}
-                    <Send className="size-4" />
+                  {submitState === "error" && (
+                    <p
+                      role="alert"
+                      className="rounded-lg border border-ruby/30 bg-ruby/10 px-4 py-3 text-sm text-ruby"
+                    >
+                      {t("contact.form.error_message")}
+                    </p>
+                  )}
+
+                  <Button
+                    type="submit"
+                    size="lg"
+                    className="w-full"
+                    disabled={submitState === "submitting"}
+                  >
+                    {submitState === "submitting" ? (
+                      <>
+                        {t("contact.form.submitting_btn")}
+                        <Loader2 className="size-4 animate-spin" />
+                      </>
+                    ) : (
+                      <>
+                        {t("contact.form.submit_btn")}
+                        <Send className="size-4" />
+                      </>
+                    )}
                   </Button>
                 </form>
               )}
