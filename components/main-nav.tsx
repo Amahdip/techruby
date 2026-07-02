@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Wordmark } from "@/components/wordmark";
 import { useTranslation } from "@/hooks/use-translation";
 import { cn } from "@/lib/utils";
 
@@ -46,16 +47,8 @@ export function MainNav() {
         aria-label="Main navigation"
         className="mx-auto flex w-full max-w-6xl items-center justify-between border-b border-border/60 bg-background/95 px-4 py-3 shadow-sm backdrop-blur-md sm:mt-4 sm:w-[calc(100%-3rem)] sm:rounded-2xl sm:border sm:bg-[var(--glass-strong-bg)] sm:shadow-none sm:backdrop-blur-xl sm:px-6"
       >
-        <Link href="/" className="flex items-center gap-2.5">
-          <span
-            aria-hidden
-            className="flex size-8 items-center justify-center rounded-lg bg-ruby/15 ring-1 ring-ruby/30"
-          >
-            <span className="size-3 rounded-full bg-ruby ruby-glow" />
-          </span>
-          <span className="text-lg font-semibold">
-            Tech<span className="text-ruby">Ruby</span>
-          </span>
+        <Link href="/" aria-label="TechRuby" className="flex items-center">
+          <Wordmark />
         </Link>
 
         <div className="hidden items-center gap-1 md:flex">

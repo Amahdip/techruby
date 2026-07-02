@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { useTranslation } from "@/hooks/use-translation";
 import { AnchorLink } from "@/components/anchor-link";
+import { Wordmark } from "@/components/wordmark";
 import { Code2, Globe, Share2 } from "lucide-react";
 
 const socialLinks = [
@@ -71,16 +72,8 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="grid gap-10 grid-cols-2 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2.5">
-              <span
-                aria-hidden
-                className="flex size-8 items-center justify-center rounded-lg bg-ruby/15 ring-1 ring-ruby/30"
-              >
-                <span className="size-3 rounded-full bg-ruby" />
-              </span>
-              <span className="text-lg font-semibold">
-                Tech<span className="text-ruby">Ruby</span>
-              </span>
+            <Link href="/" aria-label="TechRuby" className="flex items-center">
+              <Wordmark glow={false} />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
               {t("footer.brand_desc")}

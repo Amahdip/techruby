@@ -19,8 +19,15 @@ import { cn } from "@/lib/utils";
 export function BentoGrid() {
   const { t } = useTranslation();
 
+  // NOTE: `key` is a STABLE, locale-independent id. Keying the cards by their
+  // translated title instead caused them to remount on every language switch —
+  // and because the reveal animation below uses viewport={{ once: true }}, the
+  // freshly-mounted cards stayed stuck at initial="hidden" (opacity 0), i.e. the
+  // whole grid went blank after toggling language. Stable keys let the same
+  // elements persist and simply swap their text.
   const capabilities = [
     {
+      key: "backend",
       title: t("capabilities.items.backend.title"),
       description: t("capabilities.items.backend.description"),
       icon: Server,
@@ -29,6 +36,7 @@ export function BentoGrid() {
       tags: ["Microservices", "Event Sourcing", "CQRS"],
     },
     {
+      key: "devops",
       title: t("capabilities.items.devops.title"),
       description: t("capabilities.items.devops.description"),
       icon: Cloud,
@@ -36,6 +44,7 @@ export function BentoGrid() {
       tags: ["Kubernetes", "Terraform", "GitOps"],
     },
     {
+      key: "frontend",
       title: t("capabilities.items.frontend.title"),
       description: t("capabilities.items.frontend.description"),
       icon: Code2,
@@ -43,6 +52,7 @@ export function BentoGrid() {
       tags: ["React", "Next.js", "Design Systems"],
     },
     {
+      key: "distributed",
       title: t("capabilities.items.distributed.title"),
       description: t("capabilities.items.distributed.description"),
       icon: GitBranch,
@@ -50,6 +60,7 @@ export function BentoGrid() {
       tags: ["Kafka", "Redis", "gRPC"],
     },
     {
+      key: "data",
       title: t("capabilities.items.data.title"),
       description: t("capabilities.items.data.description"),
       icon: Database,
@@ -57,6 +68,7 @@ export function BentoGrid() {
       tags: ["PostgreSQL", "ClickHouse", "ETL"],
     },
     {
+      key: "talent",
       title: t("capabilities.items.talent.title"),
       description: t("capabilities.items.talent.description"),
       icon: Layers,
@@ -108,7 +120,7 @@ export function BentoGrid() {
             const Icon = cap.icon;
             return (
               <SpotlightCard
-                key={cap.title}
+                key={cap.key}
                 featured={cap.featured}
                 className={cn(cap.className)}
               >
